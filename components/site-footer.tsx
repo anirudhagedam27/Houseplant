@@ -9,7 +9,7 @@ export function SiteFooter() {
           Houseplant Survival Guide
         </span>
         <p className="text-sm text-muted-foreground">
-          Made by Anurudha Gedam
+          Made by Aniruddha Gedam
         </p>
       </div>
     </footer>

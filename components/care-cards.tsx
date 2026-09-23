@@ -1,5 +1,6 @@
 import { plants } from "@/lib/plants"
 import { PlantCard } from "./plant-card"
+import { DownloadCheatSheet } from "./download-cheat-sheet"
 
 export function CareCards() {
   return (
@@ -22,6 +23,8 @@ export function CareCards() {
           <PlantCard key={plant.slug} plant={plant} />
         ))}
       </div>
+
+      <DownloadCheatSheet />
     </section>
   )
 }
