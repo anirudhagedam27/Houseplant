@@ -13,6 +13,10 @@ export function Hero() {
           The Houseplant Survival Guide
         </h1>
 
+        <p className="mt-4 font-serif text-xl italic text-primary sm:text-2xl">
+          Minimal effort. Maximum green.
+        </p>
+
         <p className="mt-5 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
           A visual cheat sheet for the watering, light, and soil needs of three
           common, hard-to-kill indoor plants. Keep your greenery alive—without
