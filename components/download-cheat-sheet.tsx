@@ -11,82 +11,75 @@ export function DownloadCheatSheet() {
   async function handleDownload() {
     setLoading(true)
     try {
-      const { jsPDF } = await import("jspdf")
-      const doc = new jsPDF({ unit: "pt", format: "a4" })
+      const { SimplePdf } = await import("@/lib/pdf")
+      const doc = new SimplePdf()
 
-      const pageWidth = doc.internal.pageSize.getWidth()
       const margin = 48
-      const contentWidth = pageWidth - margin * 2
-      let y = margin
+      const contentWidth = doc.pageWidth - margin * 2
+      const heading: [number, number, number] = [46, 64, 45]
+      const muted: [number, number, number] = [120, 130, 118]
+      const body: [number, number, number] = [70, 80, 68]
+      let y = margin + 8
 
-      doc.setFont("helvetica", "bold")
-      doc.setFontSize(22)
-      doc.setTextColor(46, 64, 45)
-      doc.text("Houseplant Survival Guide", margin, y)
+      doc.text("Houseplant Survival Guide", margin, y, {
+        size: 22,
+        style: "bold",
+        color: heading,
+      })
 
       y += 24
-      doc.setFont("helvetica", "normal")
-      doc.setFontSize(11)
-      doc.setTextColor(90, 100, 88)
       doc.text(
         "A quick-reference cheat sheet for three hard-to-kill indoor plants.",
         margin,
         y,
+        { size: 11, color: [90, 100, 88] },
       )
 
-      y += 28
+      y += 34
 
       plants.forEach((plant) => {
-        doc.setDrawColor(210, 220, 205)
-        doc.setLineWidth(1)
-        doc.line(margin, y, pageWidth - margin, y)
-        y += 22
-
-        doc.setFont("helvetica", "bold")
-        doc.setFontSize(15)
-        doc.setTextColor(46, 64, 45)
-        doc.text(`${plant.name}`, margin, y)
-
-        doc.setFont("helvetica", "italic")
-        doc.setFontSize(10)
-        doc.setTextColor(120, 130, 118)
-        const nameWidth = doc.getTextWidth(plant.name)
-        doc.text(`  ${plant.latinName}  ·  ${plant.difficulty}`, margin + nameWidth, y)
+        doc.text(plant.name, margin, y, { size: 15, style: "bold", color: heading })
+        doc.text(
+          `${plant.latinName}  -  ${plant.difficulty}`,
+          margin + plant.name.length * 15 * 0.5 + 10,
+          y,
+          { size: 10, style: "italic", color: muted },
+        )
 
         y += 18
-        doc.setFont("helvetica", "normal")
-        doc.setFontSize(10)
-        doc.setTextColor(70, 80, 68)
 
         const rows: [string, string][] = [
           ["Water", `${plant.water} (${plant.waterFrequency})`],
-          ["Light", `${plant.light} — ${plant.lightNote}`],
-          ["Soil", `${plant.soil} — ${plant.soilNote}`],
+          ["Light", `${plant.light} - ${plant.lightNote}`],
+          ["Soil", `${plant.soil} - ${plant.soilNote}`],
         ]
 
         rows.forEach(([label, value]) => {
-          doc.setFont("helvetica", "bold")
-          doc.text(`${label}:`, margin, y)
-          doc.setFont("helvetica", "normal")
+          doc.text(`${label}:`, margin, y, { size: 10, style: "bold", color: body })
           const labelWidth = 46
-          const lines = doc.splitTextToSize(value, contentWidth - labelWidth)
-          doc.text(lines, margin + labelWidth, y)
+          const lines = doc.wrap(value, 10, contentWidth - labelWidth)
+          lines.forEach((line, i) => {
+            doc.text(line, margin + labelWidth, y + i * 14, { size: 10, color: body })
+          })
           y += lines.length * 14 + 2
         })
 
-        y += 12
+        y += 18
       })
 
-      doc.setFont("helvetica", "normal")
-      doc.setFontSize(9)
-      doc.setTextColor(140, 150, 138)
-      doc.text(
-        "Made by Aniruddha Gedam",
-        margin,
-        doc.internal.pageSize.getHeight() - 32,
-      )
+      doc.text("Made by Aniruddha Gedam", margin, doc.pageHeight - 32, {
+        size: 9,
+        color: [140, 150, 138],
+      })
 
-      doc.save("houseplant-cheat-sheet.pdf")
+      const url = URL.createObjectURL(doc.toBlob())
+      const link = document.createElement("a")
+      link.href = url
+      link.download = "houseplant-cheat-sheet.pdf"
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
     } finally {
       setLoading(false)
     }
